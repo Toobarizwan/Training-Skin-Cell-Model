@@ -1,0 +1,158 @@
+#Training Skin Cell Models
+
+#Reading in single cell datasets stored in rds and h5ad format
+
+setwd("/home/tooba/Skin_Cell_Model")
+setwd("/home/tooba/Skin_Cell_Model/25_h5ad_formatted_datasets")
+
+#downloaded R packages Seuratobject and Seurat
+install.packages("SeuratDisk")     #package not in CRAN
+
+install.packages("remotes")       #installing the package remotes
+remotes::install_github("mojaveazure/seurat-disk")   #downloading using github
+install.packages("fs")
+
+#loading neccesary libraries
+library(Seurat)
+library(SeuratDisk)
+
+#downloading datasets
+#wget https://zenodo.org/records/17088022/files/HSCA_core.h5ad?download=1
+#wget https://zenodo.org/records/17088022/files/HSCA_extended.h5ad?download=1
+
+wget "https://zenodo.org/records/17088022/files/HSCA_core.rds?download=1" -O HSCA_core.rds
+wget "https://zenodo.org/records/17088022/files/HSCA_extended.rds?download=1" -O HSCA_extended.rds 
+
+#files in .rds format
+sg_core_obj <- readRDS("sg_core.rds")
+str(sg_core_obj)
+
+# Load HSCA core - smaller, carefully curated
+HSCA_core_obj <- readRDS("HSCA_core.rds")
+str(HSCA_core_obj)
+
+# Load HSCA extended - everything including core
+HSCA_extended_obj <- readRDS("HSCA_extended.rds")
+str(HSCA_extended_obj)
+
+# Confusion: why are both core and extended same size
+# Check cell counts in each
+ncol(HSCA_core_obj)          #293827 cells
+ncol(HSCA_extended_obj)      #821464 cells
+dim(HSCA_core_obj)           #dim() returns genes x cells --> 35299 x 293827
+
+# Check gene counts
+nrow(HSCA_core_obj)          #35299 genes
+nrow(HSCA_extended_obj)      #48481 genes
+dim(HSCA_extended_obj)
+
+# Exploring data
+
+# look at the overall structure
+# This tells you what slots/data are inside the object
+str(HSCA_extended_obj, max.level = 2)  
+# max.level=2 prevents it from printing too much
+
+# What metadata columns exist?
+# This shows you all the info stored per cell
+colnames(HSCA_extended_obj@meta.data)
+
+# View first few rows of metadata
+head(HSCA_extended_obj@meta.data)
+
+# Count cells per cell type
+# Level 1 - broadest cell type groups
+# This shows the main categories
+table(HSCA_extended_obj@meta.data$celltype_lvl_1_extended)
+
+# Level 2 - more specific
+table(HSCA_extended_obj@meta.data$celltype_lvl_2_extended)
+
+# Level 3 - even more specific
+table(HSCA_extended_obj@meta.data$celltype_lvl_3_extended)
+
+# Level 4 - even more specific
+table(HSCA_extended_obj@meta.data$celltype_lvl_4_extended)
+
+# Level 5 - even more specific
+table(HSCA_extended_obj@meta.data$celltype_lvl_5_extended)
+
+
+
+#-------------------------------------------------------------------------------
+# Making hierarchy tree for all cell types to better visualize 
+options(max.print = 100000)
+# Level 1 and 2 together
+hier_1_2 <- table(
+  HSCA_extended_obj@meta.data$celltype_lvl_1_extended,
+  HSCA_extended_obj@meta.data$celltype_lvl_2_extended
+)
+print(hier_1_2)
+
+# Level 2 and 3 together
+hier_2_3 <- table(
+  HSCA_extended_obj@meta.data$celltype_lvl_2_extended,
+  HSCA_extended_obj@meta.data$celltype_lvl_3_extended
+)
+print(hier_2_3)
+
+# Level 3 and 4 together
+hier_3_4 <- table(
+  HSCA_extended_obj@meta.data$celltype_lvl_3_extended,
+  HSCA_extended_obj@meta.data$celltype_lvl_4_extended
+)
+print(hier_3_4)
+
+# Level 4 and 5 together
+hier_4_5 <- table(
+  HSCA_extended_obj@meta.data$celltype_lvl_4_extended,
+  HSCA_extended_obj@meta.data$celltype_lvl_5_extended
+)
+print(hier_4_5)
+
+#-------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#--------------------------------------------------------------------------------
+setwd("/home/tooba/Skin_Cell_Model/25_h5ad_formatted_datasets")
+  
+#files in .H5ad format
+#Pipeline: .h5ad → .h5seurat → Seurat object
+#1.Convert Anndata object to an h5seurat file
+Convert("adata_25.h5ad", dest = "h5seurat", overwrite = TRUE)   #error!
+
+#2.Load h5Seurat file into a seurat object
+seurat_anndata <- LoadH5Seurat("adata_25.h5seurat")
+
+#Using sceasy instead of SeuratDisk for .h5ad
+library(sceasy)
+sceasy::convertFormat("adata_25.h5ad",
+                      from = "anndata",
+                      to = "seurat",
+                      outFile = "adata_25.rds")
+
+#--------------------------------------------------------------------------------
+
+
