@@ -3,7 +3,7 @@
 #Reading in single cell datasets stored in rds and h5ad format
 
 setwd("/home/tooba/Skin_Cell_Model")
-setwd("/home/tooba/Skin_Cell_Model/25_h5ad_formatted_datasets")
+#setwd("/home/tooba/Skin_Cell_Model/25_h5ad_formatted_datasets")
 
 #downloaded R packages Seuratobject and Seurat
 install.packages("SeuratDisk")     #package not in CRAN
@@ -24,12 +24,12 @@ wget "https://zenodo.org/records/17088022/files/HSCA_core.rds?download=1" -O HSC
 wget "https://zenodo.org/records/17088022/files/HSCA_extended.rds?download=1" -O HSCA_extended.rds 
 
 #files in .rds format
-sg_core_obj <- readRDS("sg_core.rds")
-str(sg_core_obj)
+#sg_core_obj <- readRDS("sg_core.rds")
+#str(sg_core_obj)
 
 # Load HSCA core - smaller, carefully curated
-HSCA_core_obj <- readRDS("HSCA_core.rds")
-str(HSCA_core_obj)
+#HSCA_core_obj <- readRDS("HSCA_core.rds")
+#str(HSCA_core_obj)
 
 # Load HSCA extended - everything including core
 HSCA_extended_obj <- readRDS("HSCA_extended.rds")
@@ -50,15 +50,27 @@ dim(HSCA_extended_obj)
 
 # look at the overall structure
 # This tells you what slots/data are inside the object
-str(HSCA_extended_obj, max.level = 2)  
+str(HSCA_extended_obj, max.level = 4)  
 # max.level=2 prevents it from printing too much
 
 # What metadata columns exist?
-# This shows you all the info stored per cell
+# This shows all the info stored per cell
 colnames(HSCA_extended_obj@meta.data)
 
 # View first few rows of metadata
 head(HSCA_extended_obj@meta.data)
+
+# See all unique datasets with cell counts
+table(HSCA_extended_obj@meta.data$Dataset)
+
+# See all unique anatomical sites with cell counts
+table(HSCA_extended_obj@meta.data$anatomical_region_level3)
+
+#random
+table(HSCA_extended_obj@graphs)
+
+# To see cluster sizes
+table(Idents(HSCA_extended_obj))
 
 # Count cells per cell type
 # Level 1 - broadest cell type groups
@@ -78,9 +90,74 @@ table(HSCA_extended_obj@meta.data$celltype_lvl_4_extended)
 table(HSCA_extended_obj@meta.data$celltype_lvl_5_extended)
 
 
+# View the raw counts matrix
+# GetAssayData pulls the actual numbers from the RNA assay
+GetAssayData(HSCA_extended_obj, assay = "RNA", layer = "counts")[1:30, 1:30]     #shows genes x cells
+
+# Q. Why do I get so many zeros in raw cell matrix?
+# There is sparsity in single cell data.
+# Any given cell only uses a small fraction of its 48,481 genes at any one time.
+# A skin keratinocyte actively uses maybe 3,000-5,000 genes at once.
+# The other 43,000+ genes = 0 = dots
+# Raw counts means how many RNA molecules from that gene were captured and sequenced in that cell.
+
+# To see cell types for those 10 cells
+cells <- colnames(GetAssayData(HSCA_extended_obj))[1:10]
+HSCA_extended_obj@meta.data[cells, "celltype_lvl_3_extended"]
+
+# What is the range of counts per cell?
+# (how many total RNA molecules captured per cell)
+summary(HSCA_extended_obj@meta.data$nCount_RNA)
+
+# What is the range of genes detected per cell?
+# (how many genes had at least 1 count)
+summary(HSCA_extended_obj@meta.data$nFeature_RNA)
+
+# What fraction of the matrix is zero?
+# (sparsity)
+library(Matrix)
+mat <- GetAssayData(HSCA_extended_obj, assay = "RNA", layer = "counts")
+sparsity <- 1 - (nnzero(mat) / length(mat))
+cat("Sparsity:", round(sparsity * 100, 2), "%\n")    # Sparsity: 95.52 %
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#============================================================================================
+
 
 #-------------------------------------------------------------------------------
-# Making hierarchy tree for all cell types to better visualize 
+# Basic UMAP
+DimPlot(HSCA_extended_obj, reduction = "umap") + NoLegend()
+#-------------------------------------------------------------------------------
+# Making hierarchy tree for all cell types
 options(max.print = 100000)
 # Level 1 and 2 together
 hier_1_2 <- table(
@@ -111,28 +188,6 @@ hier_4_5 <- table(
 print(hier_4_5)
 
 #-------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #--------------------------------------------------------------------------------
