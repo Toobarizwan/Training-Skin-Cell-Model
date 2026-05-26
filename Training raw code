@@ -66,10 +66,7 @@ table(HSCA_extended_obj@meta.data$Dataset)
 # See all unique anatomical sites with cell counts
 table(HSCA_extended_obj@meta.data$anatomical_region_level3)
 
-#random
-table(HSCA_extended_obj@graphs)
-
-# To see cluster sizes
+# To see cluster sizes (i think these are created computationally, not annotated yet)
 table(Idents(HSCA_extended_obj))
 
 # Count cells per cell type
@@ -107,11 +104,11 @@ HSCA_extended_obj@meta.data[cells, "celltype_lvl_3_extended"]
 
 # What is the range of counts per cell?
 # (how many total RNA molecules captured per cell)
-summary(HSCA_extended_obj@meta.data$nCount_RNA)
+summary(HSCA_extended_obj@meta.data$nCount_RNA)            # Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    114    2819    5854    8022   10815  271296
 
 # What is the range of genes detected per cell?
 # (how many genes had at least 1 count)
-summary(HSCA_extended_obj@meta.data$nFeature_RNA)
+summary(HSCA_extended_obj@meta.data$nFeature_RNA)          # Min. 1st Qu.  Median    Mean 3rd Qu.    Max.     73    1188    1977    2173    2947   13714 
 
 # What fraction of the matrix is zero?
 # (sparsity)
