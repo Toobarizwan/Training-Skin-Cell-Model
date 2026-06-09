@@ -117,6 +117,20 @@ mat <- GetAssayData(HSCA_extended_obj, assay = "RNA", layer = "counts")
 sparsity <- 1 - (nnzero(mat) / length(mat))
 cat("Sparsity:", round(sparsity * 100, 2), "%\n")    # Sparsity: 95.52 %
 
+#-----------------------------------------------------------------------------------------------
+## RUNNING PREPROCESS 1 SCRIPT - FOUND ON GITHUB - preprocess1.R
+
+# This script converts a Seurat Object (.rds) into a pseudobulk object 
+# (this is a critical step to producing the individual-by-gene matrix which is necessary for the ranked-based percentiles)
+# This is the pseudobulk data, it still needs to be preprocessed further for ctPred
+
+#to install pipeline
+git clone https://github.com/Toobarizwan/Training-Skin-Cell-Model
+
+#create output folder
+mkdir -p ~/Skin_Cell_Model/pseudobulk
+
+#Rscript preprocess1.R   ---in terminal
 
 
 
