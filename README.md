@@ -3,5 +3,6 @@ A skin-cell-specific TWAS pipeline where I train ctPred models on normal human s
 
 Installing Pipeline:
 ````
-git clone https://github.com/Toobarizwan/All_of_Us
+git clone https://github.com/Toobarizwan/Training-Skin-Cell-Model
+
 ````
