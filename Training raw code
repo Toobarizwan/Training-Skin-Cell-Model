@@ -132,7 +132,7 @@ mkdir -p ~/Skin_Cell_Model/pseudobulk
 
 #Rscript preprocess1.R   ---in terminal
 
-
+ls ~/Skin_Cell_Model/pseudobulk/ | wc -l      # to check 23 cell type TSV files
 
 
 
