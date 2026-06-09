@@ -124,7 +124,7 @@ for (ct in names(celltype_list)) {
     row.names = FALSE
   )
   
-  message("Written: ", out_path, " (", nrow(IbG_df), " genes x ", ncol(IbG_df)-1, " donors)")
+  message("Written: ", out_path, " (", nrow(IbG_df), " genes x ", ncol(IbG_df)-1, " subjects)")
 }
 
 #This is the pseudobulk data, it still needs to be preprocessed further for ctPred
