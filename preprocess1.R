@@ -88,8 +88,8 @@ for (ct in names(celltype_list)) {
   }
   
   # Check DonorID column exists
-  if (!"DonorID" %in% colnames(obj@meta.data)) {
-    message("Skipping ", ct, " - DonorID column not found")
+  if (!"subject_ID" %in% colnames(obj@meta.data)) {
+    message("Skipping ", ct, " - subject_ID column not found")
     next
   }
   
@@ -101,7 +101,7 @@ for (ct in names(celltype_list)) {
     obj,
     assays = "RNA",
     return.seurat = FALSE,
-    group.by = "DonorID",
+    group.by = "subject_ID"",
     verbose = FALSE 
   )
   
@@ -115,7 +115,7 @@ for (ct in names(celltype_list)) {
   ct_clean <- gsub("[^A-Za-z0-9_]", "_", ct)
   
   # Write TSV (Change to the directory you want it to be)
-  out_path <- paste0(""/home/tooba/Skin_Cell_Model/pseudobulk/pseudobulk_", ct_clean, ".tsv")
+  out_path <- paste0("/home/tooba/Skin_Cell_Model/pseudobulk/pseudobulk_", ct_clean, ".tsv")
   write.table(
     IbG_df,
     file = out_path,
