@@ -66,6 +66,19 @@ HSCA_filteredEnf <- CreateSeuratObject(
 head(HSCA_filteredEnf@meta.data)
 table(HSCA_filteredEnf$celltype_lvl_3_extended)
 
+## ---- ADDING FILTER HERE ----
+ct_keep <- c(
+  "Arterial EC", "Basal KC", "Bulb", "Bulge",
+  "Capillary EC", "Coil", "Cornified KC", "Duct",
+  "Fibro A", "Fibro B", "Fibro C", "Fibro D", "Fibro diseased",
+  "Fibro E", "Granular KC", "Infundibulum", "Isthmus", "Lymphatic EC",
+  "Prolif. KC", "SG", "SMC", "Spinous KC", "Venous EC"
+)
+HSCA_filteredEnf <- subset(HSCA_filteredEnf,
+                            subset = celltype_lvl_3_extended %in% ct_keep)
+table(HSCA_filteredEnf$celltype_lvl_3_extended)
+## ------------------------------------
+
 ## Split into list by cell type
 
 #Again, for your .rds file it will not be "celltype_lvl_3_extended"), so change it to be what the actual column name is
