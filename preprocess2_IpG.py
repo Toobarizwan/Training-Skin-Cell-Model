@@ -73,15 +73,28 @@ for ibg_file in ibg_files:
         train_expr["gene_name"] = train_expr["gene_name"].astype(str).str.strip('"')
 
         # Average across ctrl donors only
-        ctrls = [c for c in train_expr.columns if c.startswith("ctrl")]
-        if len(ctrls) == 0:
-            print(f"  ⚠ WARNING: No ctrl columns found in {ibg_file}, skipping")
+        #ctrls = [c for c in train_expr.columns if c.startswith("ctrl")]
+        #if len(ctrls) == 0:
+        #    print(f"  ⚠ WARNING: No ctrl columns found in {ibg_file}, skipping")
+        #    skipped_errors += 1
+        #    continue
+
+        #train_expr[ctrls] = train_expr[ctrls].apply(pd.to_numeric, errors="coerce")
+        #train_expr["mean_expression"] = train_expr[ctrls].mean(axis=1)
+        #train_expr = train_expr[["gene_name", "mean_expression"]]
+
+        #--------------------------------------------------------------------------------
+        # Average across all donor columns    --  changed ctrl to gene_name
+        donor_cols = [c for c in train_expr.columns if c != "gene_name"]
+        if len(donor_cols) == 0:
+            print(f"  ⚠ WARNING: No donor columns found in {ibg_file}, skipping")
             skipped_errors += 1
             continue
 
-        train_expr[ctrls] = train_expr[ctrls].apply(pd.to_numeric, errors="coerce")
-        train_expr["mean_expression"] = train_expr[ctrls].mean(axis=1)
+        train_expr[donor_cols] = train_expr[donor_cols].apply(pd.to_numeric, errors="coerce")
+        train_expr["mean_expression"] = train_expr[donor_cols].mean(axis=1)
         train_expr = train_expr[["gene_name", "mean_expression"]]
+        #-------------------------------------------------------------------------------
 
         # Sanity check
         nonzero = (train_expr["mean_expression"] > 0).sum()
