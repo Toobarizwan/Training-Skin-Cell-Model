@@ -117,6 +117,14 @@ mat <- GetAssayData(HSCA_extended_obj, assay = "RNA", layer = "counts")
 sparsity <- 1 - (nnzero(mat) / length(mat))
 cat("Sparsity:", round(sparsity * 100, 2), "%\n")    # Sparsity: 95.52 %
 
+
+#-----------------------------------------------------------------------------------------------
+
+git clone https://github.com/aliyaliyuan/PlasmaXcan.git
+cd PlasmaXcan
+conda env create -f env.yml
+conda activate scPrediXcan
+
 #-----------------------------------------------------------------------------------------------
 ## RUNNING PREPROCESS 1 SCRIPT - FOUND ON GITHUB - preprocess1.R
 
@@ -130,9 +138,59 @@ git clone https://github.com/Toobarizwan/Training-Skin-Cell-Model
 #create output folder
 mkdir -p ~/Skin_Cell_Model/pseudobulk
 
-#Rscript preprocess1.R   ---in terminal
-
 ls ~/Skin_Cell_Model/pseudobulk/ | wc -l      # to check 23 cell type TSV files
+
+Rscript ~/Training-Skin-Cell-Model/preprocess1.R     #---in terminal
+
+#------------------------------------------------------------------------------
+
+## RUNNING PREPROCESS 2 SCRIPT - FOUND ON GITHUB - preprocess2_IpG.py
+
+python3 -c "
+import pandas as pd
+df = pd.read_csv('/home/tooba/Skin_Cell_Model/pseudobulk/pseudobulk_Spinous_KC.tsv', sep='\t', nrows=2)
+print(df.columns.tolist())    # to check it column starts with ctrl
+"
+
+python3 Training-Skin-Cell-Model/preprocess2_IpG.py
+
+#------------------------------------------------------------------------------
+
+# to check sizes in terminal
+du -h --max-depth=1
+
+#------------------------------------------------------------------------------
+## Installing Conda:
+
+mkdir -p ~/miniconda3
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
+bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
+~/miniconda3/bin/conda init
+
+#_________________________________________
+#for older GLIBC version:
+wget https://repo.anaconda.com/miniconda/Miniconda3-py39_23.3.1-0-Linux-x86_64.sh
+bash Miniconda3-py39_23.3.1-0-Linux-x86_64.sh -b -u -p ~/miniconda3
+
+source ~/miniconda3/bin/activate
+#_________________________________________
+
+git clone https://github.com/hakyimlab/scPrediXcan.git
+
+cd scPrediXcan
+conda env create -f scPrediXcan_env.yml
+conda activate scPrediXcan
+
+
+#------------------------------------------------------------------------------
+#### RUNNING ctPred.py SCRIPT
+
+python3 Skin_Cell_Model/ctPred.py   # for only one cell type
+
+#------------------------------------------------------------------------------
+#### RUNNING ctPred_all.py SCRIPT - FOUND ON GITHUB 
+nohup python3 Skin_Cell_Model/ctPred_all.py > training_log.txt 2>&1 &
+
 
 
 
