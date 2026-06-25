@@ -22,7 +22,7 @@ cell_types = [
     "Capillary_EC", "Coil", "Cornified_KC", "Duct",
     "Fibro_A", "Fibro_B", "Fibro_C", "Fibro_D", "Fibro_diseased",
     "Fibro_E", "Granular_KC", "Infundibulum", "Isthmus", "Lymphatic_EC",
-    "Prolif_KC", "SG", "SMC", "Spinous_KC", "Venous_EC"
+    "Prolif__KC", "SG", "SMC", "Spinous_KC", "Venous_EC"
 ]
 
 processed_dir = '/home/tooba/Skin_Cell_Model/processed_IbG/'
