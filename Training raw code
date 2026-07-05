@@ -192,7 +192,53 @@ python3 Skin_Cell_Model/ctPred.py   # for only one cell type
 nohup python3 Skin_Cell_Model/ctPred_all.py > training_log.txt 2>&1 &
 
 
+#------------------------------------------------------------------------------
+#### RUNNING predict_h5.py SCRIPT
 
+git clone https://github.com/hakyimlab/scPrediXcan.git
+
+mkdir -p /home/tooba/Skin_Cell_Model/predictions/
+
+nohup python /home/tooba/Skin_Cell_Model/predict_h5.py \
+  --model_path /home/tooba/Skin_Cell_Model/models/scPred_Arterial_EC.pt \
+  --input_folder /home/aliya/Liver/Geuvadis \
+  --ref_csv /home/tooba/Skin_Cell_Model/coding_gene_biomart_TSS_dictionary.csv \
+  --output_path /home/tooba/Skin_Cell_Model/predictions/Arterial_EC_predictions.csv \
+  --device cpu > predict_log.txt 2>&1 &
+  
+  
+# To transfer folder to ROCKS cluster
+scp -r /home/tooba/Skin_Cell_Model trizwan@hsdbc1.luc.edu:/home/trizwan/
+  
+
+#-------------------------------------------
+# Command to run on ROCKS cluster
+
+#!/bin/bash
+#$ -N Bulb_predict
+#$ -cwd
+#$ -V
+#$ -l mem_free=40G
+#$ -l h_rt=12:00:00
+#$ -o /home/trizwan/Skin_Cell_Model/logs/Bulb_predict.out
+#$ -j y
+  
+python /home/trizwan/Skin_Cell_Model/predict_h5.py \
+ --model_path /home/trizwan/Skin_Cell_Model/models/scPred_Bulb.pt \
+ --input_folder /home/ahaas4/l-ctpred/h5 \
+ --ref_csv /home/trizwan/Skin_Cell_Model/coding_gene_biomart_TSS_dictionary.csv \
+ --output_path /home/trizwan/Skin_Cell_Model/predictions/Bulb_predictions.csv \
+ --device cpu
+  
+  
+mkdir -p /home/trizwan/Skin_Cell_Model/logs/
+qsub predict_Bulb.sh    # to submit job
+qstat      # to check if job is running
+  
+#----------------------------------------------------
+
+  
+  
 
 
 
