@@ -236,8 +236,89 @@ qsub predict_Bulb.sh    # to submit job
 qstat      # to check if job is running
   
 #----------------------------------------------------
+#Updated on 8/30/26
+#---------------------------------------------------------
+## Installing java and nextflow
 
+curl -s "https://get.sdkman.io" | bash
+source "$HOME/.sdkman/bin/sdkman-init.sh"   #creates a `.sdkman` folder in home directory (`/home/trizwan/.sdkman`)
+sdk install java 17.0.12-tem
+java -version        # to check version
+
+
+curl -s https://get.nextflow.io | bash
+chmod +x nextflow
+mkdir -p ~/bin
+mv nextflow ~/bin/                    # This assumes you're still in the same directory where curl downloaded it
+nextflow -version
+
+export PATH="$HOME/bin:$PATH"
+echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+
+#---------------------------------------------------------
+# Script to run on ROCKS cluster for NEXTFLOW
+
+#!/bin/bash
+#$ -N Arterial_EC
+#$ -cwd
+#$ -V
+#$ -pe mpi 8
+#$ -l mem_free=40G
+#$ -l h_rt=48:00:00
+#$ -o /home/trizwan/PredictDb_run.out
+#$ -j y
+
+mkdir -p /home/trizwan/logs
+
+export JAVA_HOME=$HOME/.sdkman/candidates/java/17.0.12-tem
+export JAVA_CMD=$JAVA_HOME/bin/java
+export NXF_VER=25.04.0
+export PATH=$JAVA_HOME/bin:$PATH
+
+nextflow run /home/trizwan/PredictDb-nextflow/main.nf \
+--gene_annotation /home/trizwan/Skin_Cell_Model/l-ctpred/gencode.v49.annotation.gtf \
+--snp_annotation /home/trizwan/Skin_Cell_Model/l-ctpred/all_chrs.snp_annot_v1.txt \
+--genotype /home/trizwan/Skin_Cell_Model/l-ctpred/all_chrs.geno_v1.txt \
+--gene_exp /home/trizwan/Skin_Cell_Model/predictions/Arterial_EC_predictions.csv \
+--outdir /home/trizwan/Skin_Cell_Model/predictdb_output/Arterial_EC \
+--nfolds 3 \
+--max_cpus 8
+
+#---------------------------------------------------------------------
+#to check tidyverse since i was getting an error on ROCKS
+
+conda list -n scPrediXcan | grep -iE "^r-|r-base|tidyverse"   # no tidyverse found
+
+conda install -n scPrediXcan -c conda-forge r-tidyverse    # to install tidyverse
+
+# this didnt work so manually installed tidyverse
+
+#-------------------------------------------------------------------------
+#NEXTFLOW ON COMPBIO1
   
+mkdir -p /home/tooba/Skin_Cell_Model/predictdb.logs
+
+#SCRIPT:
+!/bin/bash
+
+export JAVA_HOME=/home/tooba/.sdkman/candidates/java/current
+export JAVA_CMD=$JAVA_HOME/bin/java
+export NXF_VER=25.04.0
+export PATH=$JAVA_HOME/bin:/home/tooba/bin:$PATH
+
+nextflow run /home/tooba/Skin_Cell_Model/l-ctpred/main.nf \
+--gene_annotation /home/tooba/Skin_Cell_Model/l-ctpred/gencode.v49.annotation.gtf \
+--snp_annotation /home/tooba/Skin_Cell_Model/l-ctpred/all_chrs.snp_annot_v1.txt \
+--genotype /home/tooba/Skin_Cell_Model/l-ctpred/all_chrs.geno_v1.txt \
+--gene_exp /home/tooba/Skin_Cell_Model/predictions/Venous_EC_predictions.csv \
+--outdir /home/tooba/Skin_Cell_Model/predictdb_output/Venous_EC \
+--nfolds 3
+
+#--------------------------
+
+nohup bash /home/tooba/Skin_Cell_Model/NEXTFLOW_scripts/Venous_EC_nextflow.sh > /home/tooba/Skin_Cell_Model/predictdb.logs/Venous_EC_nextflow.log 2>&1 &
+
   
 
 
