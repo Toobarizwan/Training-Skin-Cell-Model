@@ -318,8 +318,55 @@ nextflow run /home/tooba/Skin_Cell_Model/l-ctpred/main.nf \
 #--------------------------
 
 nohup bash /home/tooba/Skin_Cell_Model/NEXTFLOW_scripts/Venous_EC_nextflow.sh > /home/tooba/Skin_Cell_Model/predictdb.logs/Venous_EC_nextflow.log 2>&1 &
-
+#--------------------------
   
+#checking Nextflow's own internal debug log 
+tail -n 80 /home/tooba/.nextflow.log
+
+#found "error [java.lang.InterruptedException]: java.lang.InterruptedException"
+
+#seems to be a problem with using only nohup - setsid runs a program in a completely different session
+#note: i updated the nextflow script to run on compbio1 and included a new r_env as R version issues kept arising
+
+setsid nohup bash /home/tooba/Skin_Cell_Model/NEXTFLOW_scripts/Venous_EC_nextflow.sh > /home/tooba/Skin_Cell_Model/predictdb.logs/Venous_EC_nextflow.log 2>&1 < /dev/null &
+disown
+
+#to check status
+ps aux | grep nextflow
+
+#scP env has the old R version
+conda create --name scPrediXcan_fixed --clone scPrediXcan
+
+conda activate scPrediXcan_fixed
+conda install -c conda-forge --override-channels r-base=4.3.3 r-tidyverse
+
+#couldnt make changes to scP env even after cloning, so building separate r_env from scratch (not cloned from scPrediXcan),
+#and have the Nextflow job script activate r_env only for the R step, rather than trying to make one environment do everything
+
+conda deactivate
+conda deactivate
+conda create --name r_env -c conda-forge --override-channels r-base=4.3.3 r-tidyverse
+
+#to get rid of missing libraries error
+grep -rhoE "library\([a-zA-Z0-9\.]+\)|require\([a-zA-Z0-9\.]+\)" /home/tooba/Skin_Cell_Model/l-ctpred/PredictDb-nextflow/ | sort -u
+
+conda activate r_env
+Rscript -e 'install.packages(c("glmnet", "optparse", "reshape2", "RSQLite"), repos="https://cloud.r-project.org")'
+
+#to check if everything installed properly
+Rscript -e 'library(dplyr); library(glmnet); library(methods); library(optparse); library(reshape2); library(RSQLite); library(tidyverse); library(tools); cat("ALL GOOD\n")'
+#ALL GOOD
+
+#9/10/26 - now im trying nextflow again after fixing lib, R version issues
+
+
+
+
+
+
+
+
+
 
 
 
