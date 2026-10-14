@@ -359,6 +359,88 @@ Rscript -e 'library(dplyr); library(glmnet); library(methods); library(optparse)
 
 #9/10/26 - now im trying nextflow again after fixing lib, R version issues
 
+#error occurred
+#to troubleshoot
+cat /home/tooba/Skin_Cell_Model/l-ctpred/PredictDb-nextflow/bin/elasticnet.R
+
+
+#trying to run nextflow on Fibro A
+setsid nohup bash /home/tooba/Skin_Cell_Model/NEXTFLOW_scripts/Fibro_A_nextflow.sh > /home/tooba/Skin_Cell_Model/predictdb.logs/Fibro_A_nextflow.log 2>&1 < /dev/null &
+disown
+
+ps aux | grep nextflow
+
+
+# To check how many genes have variance=0
+# Fibro A
+Rscript -e '
+df <- read.table("/home/tooba/work/a1/fbe526aa0c7a05f0c808eff5937273/transposed_gene_exp.txt", header=TRUE, row.names=1, stringsAsFactors=FALSE)
+cat("Total genes:", ncol(df), "\n")
+variances <- apply(df, 2, var, na.rm=TRUE)
+cat("Zero-variance genes:", sum(variances == 0, na.rm=TRUE), "\n")
+cat("Percent flat:", round(100*sum(variances==0, na.rm=TRUE)/ncol(df), 2), "%\n")
+'
+
+#Total genes: 19563 
+#Zero-variance genes: 2179 
+#Percent flat: 11.14 %
+
+#---------------------------------------------------------------------------
+#Loop to find 0 var genes in all cell types
+cat > /home/tooba/Skin_Cell_Model/check_flat_genes.R << 'EOF'
+suppressMessages(library(tools))
+
+pred_dir <- "/home/tooba/Skin_Cell_Model/predictions"
+files <- list.files(pred_dir, pattern = "_predictions\\.csv$", full.names = TRUE)
+
+results <- data.frame(cell_type = character(), total_genes = integer(),
+                       flat_genes = integer(), percent_flat = numeric(),
+                       stringsAsFactors = FALSE)
+
+for (f in files) {
+  cell_type <- sub("_predictions\\.csv$", "", basename(f))
+  df <- read.csv(f, row.names = 1, check.names = FALSE)
+
+  # Detect orientation: genes are columns if column names look like ENSG IDs
+  if (grepl("^ENSG", colnames(df)[1])) {
+    variances <- apply(df, 2, var, na.rm = TRUE)  # genes = columns
+  } else {
+    variances <- apply(df, 1, var, na.rm = TRUE)  # genes = rows
+  }
+
+  total <- length(variances)
+  flat <- sum(variances == 0, na.rm = TRUE)
+  pct <- round(100 * flat / total, 2)
+
+  results <- rbind(results, data.frame(cell_type = cell_type, total_genes = total,
+                                        flat_genes = flat, percent_flat = pct))
+  cat(cell_type, ":", flat, "/", total, "(", pct, "%)\n")
+}
+
+write.csv(results, "/home/tooba/Skin_Cell_Model/flat_genes_summary.csv", row.names = FALSE)
+cat("\nSaved summary to flat_genes_summary.csv\n")
+EOF
+
+Rscript /home/tooba/Skin_Cell_Model/check_flat_genes.R
+
+#---------------------------------------------------------------------------
+
+## 22 sept - started nextflow - took 11-14 hrs to complete
+
+setsid nohup bash /home/tooba/Skin_Cell_Model/NEXTFLOW_scripts/Lymphatic_EC_nextflow.sh > /home/tooba/Skin_Cell_Model/predictdb.logs/Lymphatic_EC_nextflow.log 2>&1 < /dev/null &
+disown
+
+ps aux | grep nextflow
+
+#10/8/2026 - nextflow completed on 11 skin cell types
+
+
+#checking the files
+
+sqlite3 Basal_KC.db ".tables"
+
+sqlite3 -header -column Basal_KC.db "SELECT * FROM extra LIMIT 5;"
+
 
 
 
