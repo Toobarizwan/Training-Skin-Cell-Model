@@ -11,9 +11,11 @@ conda activate r_env
 --gene_annotation /home/tooba/Skin_Cell_Model/l-ctpred/gencode.v49.annotation.gtf \
 --snp_annotation /home/tooba/Skin_Cell_Model/l-ctpred/all_chrs.snp_annot_v1.txt \
 --genotype /home/tooba/Skin_Cell_Model/l-ctpred/all_chrs.geno_v1.txt \
---gene_exp /home/tooba/Skin_Cell_Model/predictions/Venous_EC_predictions.csv \
---outdir /home/tooba/Skin_Cell_Model/predictdb_output/Venous_EC \
+--gene_exp /home/tooba/Skin_Cell_Model/predictions/Venous_EC_predictions.csv \         ##replace Venous EC with other cell type 
+--outdir /home/tooba/Skin_Cell_Model/predictdb_output/Venous_EC \                      ##replace Venous EC with other cell type 
 --nfolds 3 \
---max_cpus 30
+--max_cpus 36
+
+
 
 
