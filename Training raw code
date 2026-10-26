@@ -441,6 +441,64 @@ sqlite3 Basal_KC.db ".tables"
 
 sqlite3 -header -column Basal_KC.db "SELECT * FROM extra LIMIT 5;"
 
+##-----------------------------------------------------------------------------------
+
+#Time to perform association tests
+
+
+#to find sample sizes
+awk -F'\t' 'NR>1{ if(min==""||$12+0<min+0)min=$12; if($12+0>max+0)max=$12; if($11+0>=maxN+0){maxN=$11; casesAtMaxN=$12}} END{print "cases_min="min, "cases_max="max, "N_max="maxN, "cases_at_N_max="casesAtMaxN}' /home/tooba/tooba_wheelerlab3/Skin_Cancer_Project/MVP_Skincancer_analyses/hg38_SPx_format_GCST90479798.h.tsv
+
+
+#Setting up LDSC
+git clone https://github.com/bulik/ldsc.git
+cd ldsc
+
+conda env create --file environment.yml
+source activate ldsc
+
+./ldsc.py -h
+./munge_sumstats.py -h
+
+#You can update to the newest version of ldsc using git. 
+#First, navigate to your ldsc/ directory (e.g., cd ldsc), then run
+git pull
+
+munge_sumstats.py --sumstats /home/tooba/Skin_Cancer_Project/MVP_Sk
+incancer_analyses/hg38_SPx_format_GCST90479798.h.tsv --N 610726 --snp rsid --a1 effect_all
+ele --a2 other_allele --p p_value --out SkinCancer --merge-alleles /home/tooba/w_hm3.snpli
+st
+#error
+
+#corrected command ---did not work
+python munge_sumstats.py \
+--sumstats /home/tooba/tooba_wheelerlab3/Skin_Cancer_Project/MVP_Skincancer_analyses/hg38_SPx_format_GCST90479798.h.tsv \
+--N-col sample_size \
+--snp rsid \
+--a1 effect_allele \
+--a2 non_effect_allele \
+--p pvalue \
+--signed-sumstats odds_ratio,1 \
+--out SkinCancer \
+--merge-alleles /home/tooba/w_hm3.snplist
+
+#taking tooo long to run
+
+
+##done on wheeler lab 3
+#tab error again - so I checked which python
+#new command directing to correct python
+cd ~/ldsc
+nohup /home/wheelerlab3/anaconda2/envs/ldsc/bin/python munge_sumstats.py --sumstats /home/tooba/Skin_Cancer_Project/MVP_Skincancer_analyses/hg38_SPx_format_GCST90479798.h.tsv --N-col sample_size --snp rsid --a1 effect_allele --a2 non_effect_allele --p pvalue --signed-sumstats odds_ratio,1 --out SkinCancer --merge-alleles /home/tooba/w_hm3.snplist > munge.out 2>&1 &
+
+/home/wheelerlab3/anaconda2/envs/ldsc/bin/python ldsc.py --h2 SkinCancer.sumstats.gz --ref-ld-chr /home/wheelerlab3/bioi397/homeworks/HW5/ldscore_data/eur_w_ld_chr/ --w-ld-chr /home/wheelerlab3/bioi397/homeworks/HW5/ldscore_data/eur_w_ld_chr/ --out SkinCancer_h2
+
+#Total Observed scale h2: 0.0296 (0.0042)  
+#old - Total Observed scale h2: 0.0283 (0.0041)
+
+#---------------------------------------------------------------------------------------
+
+
 
 
 
