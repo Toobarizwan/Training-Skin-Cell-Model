@@ -498,6 +498,285 @@ nohup /home/wheelerlab3/anaconda2/envs/ldsc/bin/python munge_sumstats.py --sumst
 
 #---------------------------------------------------------------------------------------
 
+#########################################--SHIFTED TO WHEELERLAB3--#####################################################################################################
+
+#code started oct26
+
+munge_sumstats.py --sumstats /home/tooba/Skin_Cancer_Project/MVP_Sk
+incancer_analyses/hg38_SPx_format_GCST90479798.h.tsv --N 610726 --snp rsid --a1 effect_all
+ele --a2 other_allele --p p_value --out SkinCancer --merge-alleles /home/tooba/w_hm3.snpli
+st
+
+
+scp /home/tooba/w_hm3.snplist tooba@compbio1.cs.luc.edu:/home/tooba/
+
+  
+#Setting up LDSC
+git clone https://github.com/bulik/ldsc.git
+cd ldsc
+
+conda env create --file environment.yml
+source activate ldsc
+
+./ldsc.py -h
+./munge_sumstats.py -h
+
+#You can update to the newest version of ldsc using git. 
+#First, navigate to your ldsc/ directory (e.g., cd ldsc), then run
+git pull
+
+munge_sumstats.py --sumstats /home/tooba/Skin_Cancer_Project/MVP_Sk
+incancer_analyses/hg38_SPx_format_GCST90479798.h.tsv --N 610726 --snp rsid --a1 effect_all
+ele --a2 other_allele --p p_value --out SkinCancer --merge-alleles /home/tooba/w_hm3.snpli
+st
+
+
+~/old_Skin_Cell_Model/code_started_oct26.R
+
+#tab error again - so I checked which python
+
+
+#new command directing to correct python
+cd ~/ldsc
+nohup /home/wheelerlab3/anaconda2/envs/ldsc/bin/python munge_sumstats.py --sumstats /home/tooba/Skin_Cancer_Project/MVP_Skincancer_analyses/hg38_SPx_format_GCST90479798.h.tsv --N-col sample_size --snp rsid --a1 effect_allele --a2 non_effect_allele --p pvalue --signed-sumstats odds_ratio,1 --out SkinCancer --merge-alleles /home/tooba/w_hm3.snplist > munge.out 2>&1 &
+
+/home/wheelerlab3/anaconda2/envs/ldsc/bin/python ldsc.py --h2 SkinCancer.sumstats.gz --ref-ld-chr /home/wheelerlab3/bioi397/homeworks/HW5/ldscore_data/eur_w_ld_chr/ --w-ld-chr /home/wheelerlab3/bioi397/homeworks/HW5/ldscore_data/eur_w_ld_chr/ --out SkinCancer_h2
+
+##
+
+conda activate imlabtools
+
+nohup python /home/tooba/MetaXcan/software/SPrediXcan.py \
+--model_db_path /home/tooba/Skin_Cell_Model/l-ctPred_models_for_skin_cell_types/Fibroblasts.db \
+--covariance /home/tooba/Skin_Cell_Model/l-ctPred_models_for_skin_cell_types/Fibroblasts_covariances.txt.gz \
+--gwas_file /home/tooba/Skin_Cancer_Project/MVP_Skincancer_analyses/hg38_SPx_format_GCST90479798.h.tsv \
+--gwas_h2 0.0296 \
+--gwas_N 610726 \
+--snp_column panel_variant_id \
+--chromosome_column chromosome \
+--or_column odds_ratio \
+--effect_allele_column effect_allele \
+--non_effect_allele_column non_effect_allele \
+--pvalue_column pvalue \
+--keep_non_rsid \
+--model_db_snp_key varID \
+--output_file /home/tooba/Skin_Cancer_Project/MVP_Skincancer_analyses/SkinCancer_ScPrediXcan_skin/GCST90479798_scpredixcan_skin_Fibroblasts.csv > spx_Fibroblasts.out 2>&1 &
+
+
+#--output_file GCST90479798_scpredixcan_skin_Fibroblasts.csv > spx_Fibroblasts.out 2>&1 &
+
+#command with time
+
+nohup bash -c 'time python /home/tooba/MetaXcan/software/SPrediXcan.py \
+--model_db_path /home/tooba/Skin_Cell_Model/l-ctPred_models_for_skin_cell_types/Fibroblasts.db \
+--covariance /home/tooba/Skin_Cell_Model/l-ctPred_models_for_skin_cell_types/Fibroblasts_covariances.txt.gz \
+--gwas_file /home/tooba/Skin_Cancer_Project/MVP_Skincancer_analyses/hg38_SPx_format_GCST90479798.h.tsv \
+--gwas_N 610726 \
+--snp_column panel_variant_id \
+--chromosome_column chromosome \
+--or_column odds_ratio \
+--effect_allele_column effect_allele \
+--non_effect_allele_column non_effect_allele \
+--pvalue_column pvalue \
+--keep_non_rsid \
+--model_db_snp_key varID \
+--output_file /home/tooba/Skin_Cancer_Project/MVP_Skincancer_analyses/SkinCancer_ScPrediXcan_skin/GCST90479798_scpredixcan_skin_Fibroblasts.csv' > spx_Fibroblasts.out 2>&1 &
+
+#to check output
+ls -lh /home/tooba/Skin_Cancer_Project/MVP_Skincancer_analyses/SkinCancer_ScPrediXcan_skin/
+head -3 /home/tooba/Skin_Cancer_Project/MVP_Skincancer_analyses/SkinCancer_ScPrediXcan_skin/GCST90479798_scpredixcan_skin_Fibroblasts.csv
+wc -l /home/tooba/Skin_Cancer_Project/MVP_Skincancer_analyses/SkinCancer_ScPrediXcan_skin/GCST90479798_scpredixcan_skin_Fibroblasts.csv
+  
+
+#to count significant genes
+awk -F',' 'NR>1 && $5+0 < 0.05/16236 {n++} END{print n+0, "genes below Bonferroni threshold (0.05/16236 = 3.1e-6)"}' /home/tooba/Skin_Cancer_Project/MVP_Skincancer_analyses/SkinCancer_ScPrediXcan_skin/GCST90479798_scpredixcan_skin_Fibroblasts.csv
+
+#fibro:87 genes below Bonferroni threshold (0.05/16236 = 3.1e-6)
+
+
+##BATCH SCRIPT--------------------------------------------------------------------------
+#Step 1:
+cat > ~/run_scpx_skin.sh << 'EOF'
+#!/bin/bash
+# Run SPrediXcan for each skin cell-type model, one after another.
+
+MODEL_DIR=/home/tooba/Skin_Cell_Model/l-ctPred_models_for_skin_cell_types
+GWAS=/home/tooba/Skin_Cancer_Project/MVP_Skincancer_analyses/hg38_SPx_format_GCST90479798.h.tsv
+OUT_DIR=/home/tooba/Skin_Cancer_Project/MVP_Skincancer_analyses/SkinCancer_ScPrediXcan_skin
+
+mkdir -p "$OUT_DIR"
+
+for ct in Basal_KC Blood_Vessel_EC Coil Cornified_KC Duct Fibroblasts Fibro_diseased Granular_KC Lymphatic_EC Smooth_Muscle_Cell Spinous_KC; do
+echo "======================================"
+echo "Running ScPrediXcan for model: $ct  ($(date))"
+echo "======================================"
+
+out="$OUT_DIR/GCST90479798_scpredixcan_skin_${ct}.csv"
+
+# skip a model if its output already exists, so a rerun doesn't redo finished ones
+if [ -f "$out" ]; then
+echo "$out already exists, skipping"
+continue
+fi
+
+time python /home/tooba/MetaXcan/software/SPrediXcan.py \
+--model_db_path "$MODEL_DIR/${ct}.db" \
+--covariance "$MODEL_DIR/${ct}_covariances.txt.gz" \
+--gwas_file "$GWAS" \
+--gwas_N 610726 \
+--snp_column panel_variant_id \
+--chromosome_column chromosome \
+--or_column odds_ratio \
+--effect_allele_column effect_allele \
+--non_effect_allele_column non_effect_allele \
+--pvalue_column pvalue \
+--keep_non_rsid \
+--model_db_snp_key varID \
+--output_file "$out"
+
+echo "Finished $ct  ($(date))"
+done
+EOF
+chmod +x ~/run_scpx_skin.sh
+
+##---------------------------------------------------------------------------------------
+#Step 2:
+conda activate imlabtools
+cd ~
+nohup ./run_scpx_skin.sh > run_scpx_skin.log 2>&1 &
+
+#to check progress
+grep -E "Running ScPrediXcan|Finished|real|rror" ~/run_scpx_skin.log
+  
+  
+##====================================================================================================
+
+# -*- coding: utf-8 -*-
+
+"""
+Point at a directory of per-cell-type CSVs, get a correlation matrix and heatmap.
+
+Each file becomes one value per gene, those are ranked into
+percentiles, and the cell types are Spearman-correlated against each other.
+
+Labels come from the filenames.
+
+Writes <outdir>/<name>_corr.tsv and <outdir>/<name>.png
+
+Usage:
+    python corr_heatmap.py --dir ~/path/to/prediction/csvs --name predictions
+"""
+
+import argparse
+import re
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
+FEATURE_RE = re.compile(r"^feature_\d+$")
+ID_COLS = {"gene_name", "chromo", "gene", "chr", "chromosome", "name"}
+
+
+def label(path):
+  return re.sub(r"[_-]?(predictions|merged)$", "", path.stem, flags=re.I)
+
+
+def profile(path):
+    """One percentile per gene, whichever file type this is."""
+    cols = pd.read_csv(path, nrows=0).columns.tolist()
+
+    if any(FEATURE_RE.match(c) for c in cols):
+        # merged file: identifier column plus a single value column
+        value = [c for c in cols
+                 if not FEATURE_RE.match(c) and c.lower() not in ID_COLS]
+        if len(value) != 1:
+            raise SystemExit(f"{path.name}: expected one value column, "
+                             f"found {value}")
+        gene = next((c for c in cols if c.lower() in ID_COLS), cols[0])
+        s = pd.read_csv(path, usecols=[gene, value[0]])
+        s = s.drop_duplicates(subset=gene).set_index(gene)[value[0]]
+    else:
+        # predictions file: genes as rows, individuals as columns
+        df = pd.read_csv(path, index_col=0)
+        s = df.mean(axis=1)
+
+    s.index = s.index.astype(str).str.split(".").str[0]
+    s = s[~s.index.duplicated(keep="first")]
+    return s.astype(float).rank(pct=True)
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--dir", required=True, help="Directory of per-cell-type CSVs.")
+    ap.add_argument("--name", required=True, help="Output file stem.")
+    ap.add_argument("--title", default=None, help="Plot title.")
+    ap.add_argument("--outdir", default=".")
+    ap.add_argument("--pattern", default="*.csv")
+    ap.add_argument("--vmin", type=float, default=None,
+                    help="Colour scale minimum. Pass the same value on two "
+                         "runs to make the heatmaps comparable.")
+    args = ap.parse_args()
+
+    files = sorted(Path(args.dir).glob(args.pattern))
+    if len(files) < 2:
+        raise SystemExit(f"Need at least two files; found {len(files)} in {args.dir}")
+
+    profiles = {}
+    for f in files:
+        profiles[label(f)] = profile(f)
+        print(f"{label(f):<36} {len(profiles[label(f)]):,} genes")
+
+    mat = pd.DataFrame(profiles).dropna()
+    print(f"\nGenes shared by all {len(profiles)} cell types: {len(mat):,}")
+    if mat.empty:
+        raise SystemExit("No genes shared across all files.")
+
+    corr = mat.rank(pct=True).corr(method="spearman")
+
+    outdir = Path(args.outdir)
+    outdir.mkdir(parents=True, exist_ok=True)
+    corr.to_csv(outdir / f"{args.name}_corr.tsv", sep="\t")
+
+    off = corr.to_numpy()[~np.eye(len(corr), dtype=bool)]
+    print(f"Off-diagonal Spearman: min {off.min():.3f}  "
+          f"median {np.median(off):.3f}  max {off.max():.3f}")
+
+    vmin = args.vmin if args.vmin is not None else np.floor(off.min() * 20) / 20
+    n = len(corr)
+    fig, ax = plt.subplots(figsize=(3 + 0.3 * n, 3 + 0.26 * n))
+    im = ax.imshow(corr.to_numpy(), cmap="viridis", vmin=vmin, vmax=1.0)
+    ax.set_xticks(range(n)); ax.set_yticks(range(n))
+    ax.set_xticklabels(corr.columns, rotation=90, fontsize=9)
+    ax.set_yticklabels(corr.index, fontsize=9)
+    ax.set_title(args.title or args.name, loc="left", fontweight="bold")
+    fig.colorbar(im, ax=ax, fraction=0.046, label="Spearman rho")
+    fig.tight_layout()
+    fig.savefig(outdir / f"{args.name}.png", dpi=300, bbox_inches="tight")
+
+    print(f"\nWrote {outdir / (args.name + '_corr.tsv')}")
+    print(f"Wrote {outdir / (args.name + '.png')}")
+    if args.vmin is None:
+        print(f"(colour scale {vmin:.2f}-1.00; pass --vmin {vmin:.2f} "
+              f"on another run to match)")
+
+
+if __name__ == "__main__":
+    main()
+
+##===================================================================================================
+
+
+
+
+
+
+
 
 
 
